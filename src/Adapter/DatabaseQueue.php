@@ -91,7 +91,10 @@ class DatabaseQueue extends AbstractAdapter
                 "SELECT * FROM " . $this->table . " WHERE `queue` = ? and `available_at` <= ? ORDER BY id ASC LIMIT 1", //  FOR UPDATE
                 [$queue, time()]
             )->fetch();
-            if($job && $job["id"] == $this->config['tem_stop_id'] ?? -1){
+
+            $stopId = redis()->get("database_queue_stop_id");
+
+            if($job && $job["id"] == $stopId){
                 usleep($this->config['interval'] ?? 200);
                 continue;
             }
